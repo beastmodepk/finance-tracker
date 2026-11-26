@@ -1,31 +1,44 @@
 import SwiftUI
 
-/// Placeholder shell — final design is worked on with the owner next.
-/// Tabs mirror the settled core screens in docs/DESIGN.md so design
-/// work can drop into each one independently.
 struct ContentView: View {
+    @EnvironmentObject var store: Store
+
     var body: some View {
+        if store.isUnlocked {
+            VStack(spacing: 0) {
+                if store.isDemoMode {
+                    Text("DEMO MODE — sample data, nothing real")
+                        .font(.caption).bold()
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 4)
+                        .background(Color.ftAmberSoft)
+                }
+                mainTabs
+            }
+        } else {
+            VaultView()
+        }
+    }
+
+    private var mainTabs: some View {
         TabView {
-            PlaceholderView(title: "Dashboard",
-                            systemImage: "chart.pie",
+            PlaceholderView(title: "Dashboard", systemImage: "chart.pie",
                             note: "Net worth, cash flow and savings rate live here.")
                 .tabItem { Label("Dashboard", systemImage: "chart.pie") }
-
-            PlaceholderView(title: "Transactions",
-                            systemImage: "list.bullet.rectangle",
+            PlaceholderView(title: "Transactions", systemImage: "list.bullet.rectangle",
                             note: "Searchable ledger and CSV import live here.")
                 .tabItem { Label("Transactions", systemImage: "list.bullet.rectangle") }
-
-            PlaceholderView(title: "Spending Plan",
-                            systemImage: "wallet.bifold",
+            PlaceholderView(title: "Spending Plan", systemImage: "wallet.bifold",
                             note: "Budgets by category live here.")
                 .tabItem { Label("Plan", systemImage: "wallet.bifold") }
-
-            PlaceholderView(title: "Goals",
-                            systemImage: "target",
-                            note: "Savings goals live here.")
-                .tabItem { Label("Goals", systemImage: "target") }
+            PlaceholderView(title: "Accounts", systemImage: "building.columns",
+                            note: "Accounts and card statement details live here.")
+                .tabItem { Label("Accounts", systemImage: "building.columns") }
+            PlaceholderView(title: "More", systemImage: "ellipsis.circle",
+                            note: "Budgets, goals, recurring, reports, import and settings live here.")
+                .tabItem { Label("More", systemImage: "ellipsis.circle") }
         }
+        .tint(Color.ftTealDeep)
     }
 }
 
@@ -43,7 +56,7 @@ struct PlaceholderView: View {
                 Text(note)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.secondary)
-                Text("Design coming next — private by design: no account, no bank login, no server.")
+                Text("Private by design: no account, no bank login, no server.")
                     .font(.footnote)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.tertiary)
