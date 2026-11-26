@@ -1,7 +1,8 @@
 import SwiftUI
 
 /// Vault gate (wireframe screen 1). UI gate only in this build:
-/// unlocking is in-memory; real encryption lands next (see Settings).
+/// data persists on-device unencrypted; real encryption lands in the
+/// vault pass (see Settings).
 struct VaultView: View {
     @EnvironmentObject var store: Store
     @State private var passphrase = ""

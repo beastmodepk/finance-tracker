@@ -4,6 +4,7 @@ struct SettingsView: View {
     @EnvironmentObject var store: Store
     @State private var confirmWipe = false
     @State private var confirmPlainExport = false
+    @State private var confirmStartFresh = false
 
     var body: some View {
         List {
@@ -11,16 +12,19 @@ struct SettingsView: View {
                 HStack {
                     Text("Status")
                     Spacer()
-                    Text(store.isDemoMode ? "Demo vault (in-memory)" : "Unlocked (in-memory)")
+                    Text(store.isDemoMode ? "Demo vault (saved on device)" : "Saved on this device")
                         .foregroundStyle(.secondary)
                 }
                 Button("Lock now") { store.lock() }
-                Text("Honest status: this UI build keeps the vault in memory only. Real encrypted persistence (AES-256-GCM + PBKDF2) lands next — until then, closing the app clears demo data and nothing is stored on disk.")
+                Text("Honest status: your data is saved on this device only, in a data file that is NOT encrypted yet, so it survives closing the app. Real encrypted persistence (AES-256-GCM + PBKDF2) lands in the vault pass. Nothing leaves this phone — no server, no analytics.")
                     .font(.caption).foregroundStyle(.secondary)
             }
             Section("Your data") {
+                Button("Start fresh — clear demo & enter my own data…") { confirmStartFresh = true }
+                Text("Removes everything currently in the app (including the demo data) and saves the empty state, so you can add only your own real accounts, budgets and goals.")
+                    .font(.caption).foregroundStyle(.secondary)
                 Button("Export encrypted backup") { }
-                Text("Encrypted backup export lands with encrypted persistence (next). One password-encrypted file will hold your whole vault.")
+                Text("Encrypted backup export lands with the encrypted vault pass. One password-encrypted file will hold your whole vault.")
                     .font(.caption).foregroundStyle(.secondary)
                 Button("Export plain CSV / JSON") { confirmPlainExport = true }
                 Text("Plain exports are NOT encrypted — anyone with the file can read your finances.")
@@ -46,6 +50,12 @@ struct SettingsView: View {
             }
         }
         .navigationTitle("Settings & Privacy")
+        .alert("Start fresh?", isPresented: $confirmStartFresh) {
+            Button("Cancel", role: .cancel) { }
+            Button("Clear everything", role: .destructive) { store.startFresh() }
+        } message: {
+            Text("This clears all accounts, transactions, budgets, goals and recurring items currently in the app and saves the empty state. There is no undo.")
+        }
         .alert("Wipe this vault?", isPresented: $confirmWipe) {
             Button("Cancel", role: .cancel) { }
             Button("Wipe everything", role: .destructive) { store.wipeVault() }

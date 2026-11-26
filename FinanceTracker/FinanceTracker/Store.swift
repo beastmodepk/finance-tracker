@@ -1,11 +1,27 @@
+import Combine
 import Foundation
 
-/// App state for the UI build.
+/// Snapshot of everything the app persists, written as JSON to the app's
+/// Application Support folder. NOT encrypted yet — encryption is the
+/// vault pass (AES-256-GCM + PBKDF2, see docs/PRIVACY.md) and Settings
+/// says so plainly. The file never leaves the device.
+private struct PersistedData: Codable {
+    var accounts: [Account]
+    var transactions: [Transaction]
+    var budgets: [Budget]
+    var watchlists: [WatchlistItem]
+    var goals: [SavingsGoal]
+    var recurring: [RecurringItem]
+    var manualMonthlyIncome: Double?
+    var isDemoMode: Bool
+}
+
+/// App state.
 ///
-/// IMPORTANT (honest status): the vault here is a UI gate only — unlocked
-/// state is in-memory and demo data lives in memory. Real encrypted
-/// persistence (AES-256-GCM + PBKDF2, see docs/PRIVACY.md) lands next and
-/// Settings says so plainly. Nothing here is sent anywhere.
+/// IMPORTANT (honest status): the vault here is still a UI gate only —
+/// any passphrase of 4+ characters unlocks. Data DOES persist on-device
+/// now (unencrypted JSON, see PersistedData above); real encrypted
+/// persistence lands in the vault pass. Nothing here is sent anywhere.
 @MainActor
 final class Store: ObservableObject {
     @Published var accounts: [Account] = []
@@ -22,19 +38,82 @@ final class Store: ObservableObject {
     /// income derived from recurring items in the plan maths.
     @Published var manualMonthlyIncome: Double? = nil
 
+    // MARK: - Persistence (on-device JSON, NOT encrypted yet)
+
+    private var saveCancellable: AnyCancellable? = nil
+    private var isLoadingData = false
+    private(set) var hasSavedData = false
+
+    init() {
+        if !loadFromDisk() {
+            // First launch: labelled demo data, with the demo banner.
+            loadDemoData()
+            isDemoMode = true
+        }
+        // Save on any change (debounced) so edits made through view
+        // bindings are captured too, not just explicit store calls.
+        saveCancellable = objectWillChange
+            .debounce(for: .milliseconds(400), scheduler: RunLoop.main)
+            .sink { [weak self] _ in
+                guard let self else { return }
+                Task { @MainActor in self.saveToDisk() }
+            }
+    }
+
+    private static var dataFileURL: URL? {
+        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
+            .appendingPathComponent("FinanceTracker", isDirectory: true)
+            .appendingPathComponent("vault-data.json")
+    }
+
+    private func loadFromDisk() -> Bool {
+        guard let url = Self.dataFileURL,
+              let data = try? Data(contentsOf: url),
+              let decoded = try? JSONDecoder().decode(PersistedData.self, from: data) else {
+            return false
+        }
+        isLoadingData = true
+        accounts = decoded.accounts
+        transactions = decoded.transactions
+        budgets = decoded.budgets
+        watchlists = decoded.watchlists
+        goals = decoded.goals
+        recurring = decoded.recurring
+        manualMonthlyIncome = decoded.manualMonthlyIncome
+        isDemoMode = decoded.isDemoMode
+        hasSavedData = true
+        isLoadingData = false
+        return true
+    }
+
+    private func saveToDisk() {
+        guard !isLoadingData, let url = Self.dataFileURL else { return }
+        let snapshot = PersistedData(accounts: accounts, transactions: transactions,
+                                     budgets: budgets, watchlists: watchlists,
+                                     goals: goals, recurring: recurring,
+                                     manualMonthlyIncome: manualMonthlyIncome,
+                                     isDemoMode: isDemoMode)
+        guard let data = try? JSONEncoder().encode(snapshot) else { return }
+        try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(),
+                                                 withIntermediateDirectories: true)
+        try? data.write(to: url, options: [.atomic])
+        hasSavedData = true
+    }
+
     // MARK: - Vault (UI gate only in this build)
 
     func unlock(passphrase: String) -> Bool {
-        // Demo passphrase opens the demo vault. Any passphrase set at
-        // "create" time is accepted in this UI build (in-memory only).
+        // Demo passphrase opens the demo vault — unless the user already
+        // has their own saved data, which the demo must never clobber.
         if passphrase == "Demo1234!" {
-            loadDemoData()
-            isDemoMode = true
+            if !hasSavedData || isDemoMode {
+                loadDemoData()
+                isDemoMode = true
+            }
             isUnlocked = true
             return true
         }
         if passphrase.count >= 4 {
-            isDemoMode = false
             isUnlocked = true
             return true
         }
@@ -42,8 +121,10 @@ final class Store: ObservableObject {
     }
 
     func openDemoVault() {
-        loadDemoData()
-        isDemoMode = true
+        if !hasSavedData || isDemoMode {
+            loadDemoData()
+            isDemoMode = true
+        }
         isUnlocked = true
     }
 
@@ -153,7 +234,7 @@ final class Store: ObservableObject {
         return points
     }
 
-    // MARK: - Demo data (labelled demo, in-memory only)
+    // MARK: - Demo data (labelled demo)
 
     func loadDemoData() {
         let checking = Account(name: "Checking", kind: "Checking", balance: 3214, note: "Updated today · manual / imported")
