@@ -15,6 +15,7 @@ struct ContentView: View {
         }
     }
 
+    @ViewBuilder
     private var content: some View {
         if store.isUnlocked {
             VStack(spacing: 0) {

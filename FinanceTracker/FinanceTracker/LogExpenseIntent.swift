@@ -19,8 +19,9 @@ struct LogExpenseIntent: AppIntent {
     @Parameter(title: "What for", description: "What the expense was for, e.g. Coffee.")
     var itemName: String
 
-    @Parameter(title: "Category", default: "Other",
-               description: "Category for the expense, e.g. Dining or Groceries.")
+    @Parameter(title: "Category",
+               description: "Category for the expense, e.g. Dining or Groceries.",
+               default: "Other")
     var category: String
 
     static var parameterSummary: some ParameterSummary {
