@@ -86,7 +86,7 @@ struct RecurringView: View {
                             Text("Price rose").font(.caption).bold().foregroundStyle(.red)
                         }
                         if item.looksUnused {
-                            Text("Unused? No activity logged").font(.caption).bold().foregroundStyle(Color.ftAmber)
+                            Text("Unused? No activity logged").font(.caption).bold().foregroundStyle(Color.ftAmberText)
                         }
                     }
                 }

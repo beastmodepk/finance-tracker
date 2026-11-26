@@ -9,6 +9,7 @@ struct ContentView: View {
                 if store.isDemoMode {
                     Text("DEMO MODE — sample data, nothing real")
                         .font(.caption).bold()
+                        .foregroundStyle(Color.ftAmberText)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 4)
                         .background(Color.ftAmberSoft)

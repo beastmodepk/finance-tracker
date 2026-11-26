@@ -58,7 +58,7 @@ struct ImportView: View {
                         }
                         if showFileNote {
                             Text("File reading lands in the next build — this wizard's flow, mapping and dedupe are ready for it.")
-                                .font(.caption).foregroundStyle(Color.ftAmber)
+                                .font(.caption).foregroundStyle(Color.ftAmberText)
                         }
                         Text("Into account: \(store.accounts.first?.name ?? "Checking")")
                             .font(.caption).foregroundStyle(.secondary)
@@ -112,9 +112,12 @@ struct ImportView: View {
                     Text(option)
                         .font(.caption).bold()
                         .padding(.horizontal, 9).padding(.vertical, 5)
-                        .background(source == option ? Color.ftTealDeep : Color.ftCream)
+                        .background(source == option ? Color.ftTealDeep : Color.ftSurface)
                         .foregroundStyle(source == option ? .white : .primary)
                         .clipShape(Capsule())
+                        .overlay(
+                            Capsule().stroke(source == option ? Color.clear : Color.secondary.opacity(0.35), lineWidth: 1)
+                        )
                 }
             }
         }

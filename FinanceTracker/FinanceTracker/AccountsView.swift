@@ -45,7 +45,7 @@ struct AccountsView: View {
                 HStack {
                     Text("Net worth").bold()
                     Spacer()
-                    Text(money(store.netWorth)).font(.title3).bold().foregroundStyle(Color.ftTealDeep)
+                    Text(money(store.netWorth)).font(.title3).bold().foregroundStyle(Color.ftTealText)
                 }
             }
             ForEach(store.accounts) { account in
@@ -67,7 +67,7 @@ struct AccountsView: View {
     private func accountRow(_ account: Account) -> some View {
         VStack(alignment: .leading, spacing: 5) {
             HStack {
-                Image(systemName: icon(for: account.kind)).foregroundStyle(Color.ftTealDeep)
+                Image(systemName: icon(for: account.kind)).foregroundStyle(Color.ftTealText)
                 Text(account.name).bold()
                 Spacer()
                 Text(money(account.balance))

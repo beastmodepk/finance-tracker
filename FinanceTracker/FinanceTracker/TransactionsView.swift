@@ -52,24 +52,27 @@ struct TransactionsView: View {
                             Spacer()
                             Text(money(tx.amount, signed: tx.amount > 0))
                                 .font(.subheadline).bold()
-                                .foregroundStyle(tx.amount > 0 ? Color.ftTeal : .primary)
+                                .foregroundStyle(tx.amount > 0 ? Color.ftTealText : .primary)
                         }
                         HStack(spacing: 6) {
                             Text(tx.date.shortDay).font(.caption).foregroundStyle(.secondary)
                             Text(tx.category)
                                 .font(.caption).bold()
+                                .foregroundStyle(Color.ftTealText)
                                 .padding(.horizontal, 6).padding(.vertical, 1)
                                 .background(Color.ftTealSoft).clipShape(Capsule())
                             if tx.isAutoCategorized {
-                                Text("Auto").font(.caption).foregroundStyle(Color.ftTealDeep)
+                                Text("Auto").font(.caption).foregroundStyle(Color.ftTealText)
                             }
                             if tx.isSplit {
                                 Text("Split").font(.caption).bold()
+                                    .foregroundStyle(Color.ftAmberText)
                                     .padding(.horizontal, 6).padding(.vertical, 1)
                                     .background(Color.ftAmberSoft).clipShape(Capsule())
                             }
                             if tx.isPending {
                                 Text("Pending").font(.caption).bold()
+                                    .foregroundStyle(Color.ftAmberText)
                                     .padding(.horizontal, 6).padding(.vertical, 1)
                                     .background(Color.ftAmberSoft).clipShape(Capsule())
                             }
@@ -106,9 +109,12 @@ struct TransactionsView: View {
             Text(label)
                 .font(.caption).bold()
                 .padding(.horizontal, 10).padding(.vertical, 5)
-                .background(selected ? Color.ftTealDeep : Color.ftCream)
+                .background(selected ? Color.ftTealDeep : Color.ftSurface)
                 .foregroundStyle(selected ? .white : .primary)
                 .clipShape(Capsule())
+                .overlay(
+                    Capsule().stroke(selected ? Color.clear : Color.secondary.opacity(0.35), lineWidth: 1)
+                )
         }
     }
 }

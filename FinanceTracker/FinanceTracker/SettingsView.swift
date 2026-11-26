@@ -28,7 +28,7 @@ struct SettingsView: View {
                     .font(.caption).foregroundStyle(.secondary)
                 Button("Export plain CSV / JSON") { confirmPlainExport = true }
                 Text("Plain exports are NOT encrypted — anyone with the file can read your finances.")
-                    .font(.caption).foregroundStyle(Color.ftAmber)
+                    .font(.caption).foregroundStyle(Color.ftAmberText)
             }
             Section("For testers") {
                 HStack {

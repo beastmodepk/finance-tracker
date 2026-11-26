@@ -83,7 +83,7 @@ struct ReportsView: View {
                     Text("Net worth over time").bold()
                     Chart(netWorthSeries) { row in
                         LineMark(x: .value("Month", row.month), y: .value("Net worth", row.value))
-                            .foregroundStyle(Color.ftTealDeep)
+                            .foregroundStyle(Color.ftTeal)
                         AreaMark(x: .value("Month", row.month), y: .value("Net worth", row.value))
                             .foregroundStyle(Color.ftTealSoft)
                     }
@@ -97,7 +97,7 @@ struct ReportsView: View {
                 VStack(spacing: 6) {
                     HStack { Text("Savings rate").bold(); Spacer(); Text("\(Int(store.savingsRate * 100))%").bold() }
                     HStack { Text("Top category"); Spacer(); Text(slices.first?.category ?? "—") }
-                    HStack { Text("Tax export"); Spacer(); Text("CSV ›").foregroundStyle(Color.ftTealDeep) }
+                    HStack { Text("Tax export"); Spacer(); Text("CSV ›").foregroundStyle(Color.ftTealText) }
                 }
                 .font(.subheadline)
                 .reportCard()

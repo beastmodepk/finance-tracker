@@ -45,7 +45,7 @@ struct SpendingPlanView: View {
                     HStack {
                         Text("= Left to spend").bold()
                         Spacer()
-                        Text(money(store.safeToSpend)).bold().foregroundStyle(Color.ftTealDeep).font(.title3)
+                        Text(money(store.safeToSpend)).bold().foregroundStyle(Color.ftTealText).font(.title3)
                     }
                 }
                 Section("Method — display only, the maths doesn't change") {

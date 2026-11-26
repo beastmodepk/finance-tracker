@@ -35,7 +35,7 @@ struct DashboardView: View {
                         VStack(alignment: .trailing, spacing: 4) {
                             Text("Assets \(money(store.totalAssets))").font(.caption).foregroundStyle(.secondary)
                             Text("Debts \(money(store.totalDebts))").font(.caption).foregroundStyle(.secondary)
-                            Text("Savings rate \(Int(store.savingsRate * 100))%").font(.caption).bold().foregroundStyle(Color.ftTealDeep)
+                            Text("Savings rate \(Int(store.savingsRate * 100))%").font(.caption).bold().foregroundStyle(Color.ftTealText)
                         }
                     }
                     .padding()

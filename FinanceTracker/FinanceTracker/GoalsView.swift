@@ -42,7 +42,7 @@ struct GoalsView: View {
                     Button { editing = goal } label: {
                         VStack(alignment: .leading, spacing: 5) {
                             HStack {
-                                Image(systemName: goal.icon).foregroundStyle(Color.ftTealDeep)
+                                Image(systemName: goal.icon).foregroundStyle(Color.ftTealText)
                                 Text(goal.name).bold()
                                 Spacer()
                                 Text("\(money(goal.saved)) / \(money(goal.target))")

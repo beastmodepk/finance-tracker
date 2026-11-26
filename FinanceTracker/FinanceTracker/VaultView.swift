@@ -13,7 +13,7 @@ struct VaultView: View {
             VStack(spacing: 16) {
                 Image(systemName: "lock.shield")
                     .font(.system(size: 48))
-                    .foregroundStyle(Color.ftTealDeep)
+                    .foregroundStyle(Color.ftTealText)
                     .padding(.top, 32)
                 Text("Your vault is locked")
                     .font(.title2).bold()
@@ -45,6 +45,7 @@ struct VaultView: View {
                         Spacer()
                         Text("TEST")
                             .font(.caption).bold()
+                            .foregroundStyle(Color.ftAmberText)
                             .padding(.horizontal, 8).padding(.vertical, 2)
                             .background(Color.ftAmberSoft).clipShape(Capsule())
                     }
