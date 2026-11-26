@@ -11,6 +11,11 @@ struct Account: Identifiable, Codable {
     var dueDay: Int? = nil    // day of month the payment is due
     var creditLimit: Double? = nil
     var note: String? = nil
+    /// Annual percentage rate (%) for Credit Card / Loan accounts.
+    /// Optional + appended last: Swift's synthesised Decodable uses
+    /// decodeIfPresent for optionals, so vault files saved before this
+    /// field existed still load with apr == nil.
+    var apr: Double? = nil
 
     var utilisation: Double? {
         guard let limit = creditLimit, limit > 0, let statement = statementBalance else { return nil }

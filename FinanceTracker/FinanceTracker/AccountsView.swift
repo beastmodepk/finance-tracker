@@ -80,6 +80,9 @@ struct AccountsView: View {
                let minimum = account.minimumDue {
                 Text("Statement balance \(money(statement)) · Minimum due \(money(minimum)) · Due day \(account.dueDay ?? 0) of the month")
                     .font(.caption)
+                if let apr = account.apr {
+                    Text(String(format: "APR %.2f%%", apr)).font(.caption).foregroundStyle(.secondary)
+                }
                 if let utilisation = account.utilisation {
                     ProgressView(value: utilisation)
                         .tint(Color.ftAmber)
@@ -124,6 +127,7 @@ struct AccountFormView: View {
     @State private var statementText: String
     @State private var minimumDueText: String
     @State private var dueDay: Int
+    @State private var aprText: String
 
     static let kinds = ["Checking", "Savings", "Credit Card", "Cash", "Investment", "Loan"]
 
@@ -143,9 +147,11 @@ struct AccountFormView: View {
         _statementText = State(initialValue: existing?.statementBalance.map { String(format: "%.2f", $0) } ?? "")
         _minimumDueText = State(initialValue: existing?.minimumDue.map { String(format: "%.2f", $0) } ?? "")
         _dueDay = State(initialValue: existing?.dueDay ?? 1)
+        _aprText = State(initialValue: existing?.apr.map { String(format: "%.2f", $0) } ?? "")
     }
 
     private var isCard: Bool { kind == "Credit Card" }
+    private var isDebt: Bool { kind == "Credit Card" || kind == "Loan" }
 
     var body: some View {
         NavigationStack {
@@ -167,6 +173,10 @@ struct AccountFormView: View {
                     Text("Card balances are stored as money owed. Statement details are entered by you — no bank login, by design.")
                         .font(.caption).foregroundStyle(.secondary)
                 }
+                if isDebt {
+                    TextField("APR % (for the debt payoff planner)", text: $aprText)
+                        .keyboardType(.decimalPad)
+                }
             }
             .navigationTitle(existing == nil ? "Add account" : "Edit account")
             .toolbar {
@@ -187,6 +197,7 @@ struct AccountFormView: View {
         let statement: Double? = isCard ? (Double(statementText) ?? abs(entered)) : nil
         let minimum: Double? = isCard ? Double(minimumDueText) : nil
         let limit: Double? = isCard ? Double(creditLimitText) : nil
+        let apr: Double? = isDebt ? Double(aprText) : nil
         if let existing {
             if let idx = store.accounts.firstIndex(where: { $0.id == existing.id }) {
                 store.accounts[idx].name = name
@@ -196,13 +207,15 @@ struct AccountFormView: View {
                 store.accounts[idx].minimumDue = minimum
                 store.accounts[idx].dueDay = isCard ? dueDay : nil
                 store.accounts[idx].creditLimit = limit
+                store.accounts[idx].apr = apr
             }
         } else {
             // Memberwise init order (Models.swift): name, kind, balance,
-            // statementBalance, minimumDue, dueDay, creditLimit, note.
+            // statementBalance, minimumDue, dueDay, creditLimit, note, apr.
             store.accounts.append(Account(name: name, kind: kind, balance: balance,
                                           statementBalance: statement, minimumDue: minimum,
-                                          dueDay: isCard ? dueDay : nil, creditLimit: limit))
+                                          dueDay: isCard ? dueDay : nil, creditLimit: limit,
+                                          apr: apr))
         }
         dismiss()
     }

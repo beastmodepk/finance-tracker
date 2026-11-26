@@ -240,9 +240,11 @@ final class Store: ObservableObject {
         let checking = Account(name: "Checking", kind: "Checking", balance: 3214, note: "Updated today · manual / imported")
         let savings = Account(name: "Savings", kind: "Savings", balance: 12480, note: "APY 4.1% (manual note)")
         let travelCard = Account(name: "Travel Card", kind: "Credit Card", balance: -1850,
-                                 statementBalance: 1850, minimumDue: 55, dueDay: 28, creditLimit: 8000)
+                                 statementBalance: 1850, minimumDue: 55, dueDay: 28, creditLimit: 8000,
+                                 apr: 19.99)
         let everydayCard = Account(name: "Everyday Card", kind: "Credit Card", balance: -1000,
-                                   statementBalance: 1000, minimumDue: 31, dueDay: 12, creditLimit: 5000)
+                                   statementBalance: 1000, minimumDue: 31, dueDay: 12, creditLimit: 5000,
+                                   apr: 24.99)
         let investments = Account(name: "Investments", kind: "Investment", balance: 25276, note: "Manual balance · live holdings later")
         let cash = Account(name: "Cash", kind: "Cash", balance: 120)
         accounts = [checking, savings, travelCard, everydayCard, investments, cash]
