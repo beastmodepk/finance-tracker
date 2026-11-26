@@ -22,8 +22,7 @@ struct ContentView: View {
 
     private var mainTabs: some View {
         TabView {
-            PlaceholderView(title: "Dashboard", systemImage: "chart.pie",
-                            note: "Net worth, cash flow and savings rate live here.")
+            DashboardView()
                 .tabItem { Label("Dashboard", systemImage: "chart.pie") }
             PlaceholderView(title: "Transactions", systemImage: "list.bullet.rectangle",
                             note: "Searchable ledger and CSV import live here.")
