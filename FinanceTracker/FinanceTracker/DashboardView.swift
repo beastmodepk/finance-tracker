@@ -49,7 +49,7 @@ struct DashboardView: View {
                                 .foregroundStyle(Color.ftTeal)
                             PointMark(x: .value("Date", point.date), y: .value("Balance", point.balance))
                                 .foregroundStyle(Color.ftAmber)
-                                .symbolSize(point.id == lowPoint?.id ? 60 : 0)
+                                .symbolSize(point.balance == (lowPoint?.balance ?? -1) ? 60.0 : 0.0)
                         }
                         .frame(height: 130)
                         if let low = lowPoint {
