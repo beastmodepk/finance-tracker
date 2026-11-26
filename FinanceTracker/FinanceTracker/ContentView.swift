@@ -30,8 +30,7 @@ struct ContentView: View {
                 .tabItem { Label("Plan", systemImage: "wallet.bifold") }
             AccountsView()
                 .tabItem { Label("Accounts", systemImage: "building.columns") }
-            PlaceholderView(title: "More", systemImage: "ellipsis.circle",
-                            note: "Budgets, goals, recurring, reports, import and settings live here.")
+            MoreView()
                 .tabItem { Label("More", systemImage: "ellipsis.circle") }
         }
         .tint(Color.ftTealDeep)
