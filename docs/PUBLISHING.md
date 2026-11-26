@@ -20,6 +20,9 @@ can never publish publicly by itself (Apple review sits in between).
 
 ## Owner-only gates — Parthey (Apple requires the account holder)
 
+Status update 2026-11-26: Bundle ID `com.parthey.financetracker` registered
+and the App Store Connect record created by Parthey. GitHub secrets are next.
+
 ### 1. App Store Connect record (~2 min)
 App Store Connect → Apps → "+" → New App:
 - Platform: iOS
