@@ -1,4 +1,13 @@
+import PhotosUI
 import SwiftUI
+import UIKit
+
+/// Prefill for the Add sheet produced by receipt OCR.
+private struct ReceiptPrefill: Identifiable {
+    let id = UUID()
+    var description: String
+    var amountText: String
+}
 
 struct TransactionsView: View {
     @EnvironmentObject var store: Store
@@ -7,6 +16,10 @@ struct TransactionsView: View {
     @State private var categoryFilter: String? = nil
     @State private var showAdd = false
     @State private var confirmedIDs: Set<UUID> = []
+    @State private var showCamera = false
+    @State private var showPhotoPicker = false
+    @State private var photoItem: PhotosPickerItem? = nil
+    @State private var receiptPrefill: ReceiptPrefill? = nil
 
     private let filters = ["All", "Spending", "Income", "Pending"]
     private var categories: [String] {
@@ -98,9 +111,53 @@ struct TransactionsView: View {
             .navigationTitle("Transactions")
             .searchable(text: $search, prompt: "Search payee, amount, tag…")
             .toolbar {
-                Button { showAdd = true } label: { Label("Add", systemImage: "plus") }
+                Menu {
+                    Button { showAdd = true } label: {
+                        Label("Add transaction", systemImage: "plus")
+                    }
+                    if UIImagePickerController.isSourceTypeAvailable(.camera) {
+                        Button { showCamera = true } label: {
+                            Label("Scan receipt", systemImage: "camera.viewfinder")
+                        }
+                    }
+                    Button { showPhotoPicker = true } label: {
+                        Label("Import receipt photo", systemImage: "photo")
+                    }
+                } label: {
+                    Label("Add", systemImage: "plus")
+                }
             }
             .sheet(isPresented: $showAdd) { AddTransactionView() }
+            .sheet(isPresented: $showCamera) {
+                CameraPicker { image in handleReceiptImage(image) }
+                    .ignoresSafeArea()
+            }
+            .sheet(item: $receiptPrefill) { prefill in
+                AddTransactionView(initialDescription: prefill.description,
+                                   initialAmountText: prefill.amountText)
+            }
+            .photosPicker(isPresented: $showPhotoPicker, selection: $photoItem, matching: .images)
+            .onChange(of: photoItem) { _, item in
+                guard let item else { return }
+                Task {
+                    if let data = try? await item.loadTransferable(type: Data.self),
+                       let image = UIImage(data: data) {
+                        handleReceiptImage(image)
+                    }
+                    photoItem = nil
+                }
+            }
+        }
+    }
+
+    /// OCR runs on-device; the result only prefills the Add sheet —
+    /// nothing is saved until the user confirms it there.
+    private func handleReceiptImage(_ image: UIImage) {
+        ReceiptScanner.recognize(image) { draft in
+            guard let draft else { return }
+            receiptPrefill = ReceiptPrefill(
+                description: draft.merchant,
+                amountText: draft.total.map { String(format: "%.2f", $0) } ?? "")
         }
     }
 
@@ -122,11 +179,20 @@ struct TransactionsView: View {
 struct AddTransactionView: View {
     @EnvironmentObject var store: Store
     @Environment(\.dismiss) private var dismiss
-    @State private var description = ""
-    @State private var amountText = ""
-    @State private var category = "Groceries"
+    @State private var description: String
+    @State private var amountText: String
+    @State private var category: String
     @State private var isIncome = false
     @State private var accountID: UUID? = nil
+
+    /// Prefill values — used by receipt scanning so the user confirms
+    /// or edits the OCR result before it is saved.
+    init(initialDescription: String = "", initialAmountText: String = "",
+         initialCategory: String = "Groceries") {
+        _description = State(initialValue: initialDescription)
+        _amountText = State(initialValue: initialAmountText)
+        _category = State(initialValue: initialCategory)
+    }
 
     private let categoryOptions = ["Groceries", "Dining", "Transport", "Shopping", "Bills", "Gifts", "Income", "Other"]
 
