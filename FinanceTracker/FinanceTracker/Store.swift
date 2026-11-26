@@ -71,6 +71,13 @@ final class Store: ObservableObject {
         isUnlocked = false
     }
 
+    /// Quick-add from the Goals screen (+$25 / +$100 buttons).
+    func quickAdd(toGoal id: UUID, amount: Double) {
+        if let idx = goals.firstIndex(where: { $0.id == id }) {
+            goals[idx].saved = min(goals[idx].target, goals[idx].saved + amount)
+        }
+    }
+
     // MARK: - Computed
 
     var netWorth: Double { accounts.reduce(0) { $0 + $1.balance } }
