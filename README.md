@@ -40,16 +40,21 @@ this repo is the public home for the standalone version.
 
 ## Status
 
-**Repo-ready / design phase — 2026-11-26**
+**Apple-ready / design phase — 2026-11-26**
 
-Repo scaffolding, privacy model, and design docs are in place.
-Final UI design and the standalone code layout are the next step,
-agreed with the owner before code is ported from the prototype.
+Repo, native iOS skeleton (SwiftUI, `com.parthey.financetracker`), and the
+full TestFlight pipeline are in place. Remaining owner gates before the
+first TestFlight build are in [docs/PUBLISHING.md](docs/PUBLISHING.md)
+(App Store Connect record + the same 4 Alfred CI secrets as Work Spots).
+Final UI design is next — directed by the owner, built and pushed by Alfred,
+each merge to `main` ships a new TestFlight build.
 
 See:
 - [docs/PRIVACY.md](docs/PRIVACY.md) — encryption & data model
 - [docs/DESIGN.md](docs/DESIGN.md) — principles + open design questions
 - [docs/ROADMAP.md](docs/ROADMAP.md) — planned order of work
+- [docs/PUBLISHING.md](docs/PUBLISHING.md) — Apple / TestFlight checklist
+- [docs/VERSIONING.md](docs/VERSIONING.md) — version & build-number rules
 
 ## Principles
 
