@@ -18,6 +18,10 @@ final class Store: ObservableObject {
     @Published var isUnlocked = false
     @Published var isDemoMode = false
 
+    /// User-set expected monthly income. When set, it overrides the
+    /// income derived from recurring items in the plan maths.
+    @Published var manualMonthlyIncome: Double? = nil
+
     // MARK: - Vault (UI gate only in this build)
 
     func unlock(passphrase: String) -> Bool {
@@ -57,6 +61,7 @@ final class Store: ObservableObject {
         watchlists = []
         goals = []
         recurring = []
+        manualMonthlyIncome = nil
         isDemoMode = false
     }
 
@@ -67,6 +72,7 @@ final class Store: ObservableObject {
         watchlists = []
         goals = []
         recurring = []
+        manualMonthlyIncome = nil
         isDemoMode = false
         isUnlocked = false
     }
@@ -85,7 +91,8 @@ final class Store: ObservableObject {
     var totalDebts: Double { abs(accounts.filter { $0.balance < 0 }.reduce(0) { $0 + $1.balance }) }
 
     var expectedMonthlyIncome: Double {
-        recurring.filter { $0.amount > 0 }.reduce(0) { $0 + $1.amount }
+        if let manualMonthlyIncome { return manualMonthlyIncome }
+        return recurring.filter { $0.amount > 0 }.reduce(0) { $0 + $1.amount }
     }
     var monthlyBillsTotal: Double {
         abs(recurring.filter { $0.amount < 0 }.reduce(0) { $0 + $1.amount })
