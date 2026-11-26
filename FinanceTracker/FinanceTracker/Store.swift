@@ -144,7 +144,7 @@ final class Store: ObservableObject {
             Transaction(date: dayThisMonth(15), description: "Payroll — Employer", category: "Income", amount: 2425, accountID: checking.id),
             Transaction(date: dayThisMonth(1), description: "Rent", category: "Bills", amount: -1650, accountID: checking.id, isRecurring: true),
             Transaction(date: dayThisMonth(3), description: "Electric utility", category: "Bills", amount: -94.12, accountID: checking.id, isRecurring: true),
-            Transaction(date: dayThisMonth(4), description: "Market Basket", category: "Groceries", amount: -86.20, accountID: travelCard.id, isAutoCategorized: true, isSplit: true),
+            Transaction(date: dayThisMonth(4), description: "Market Basket", category: "Groceries", amount: -86.20, accountID: travelCard.id, isSplit: true, isAutoCategorized: true),
             Transaction(date: dayThisMonth(6), description: "Phone bill", category: "Bills", amount: -55, accountID: checking.id, isRecurring: true),
             Transaction(date: dayThisMonth(7), description: "Coffee Shop", category: "Dining", amount: -6.40, accountID: everydayCard.id, isAutoCategorized: true, needsCategoryConfirm: true),
             Transaction(date: dayThisMonth(8), description: "Groceries — Trader Joe's", category: "Groceries", amount: -132.45, accountID: checking.id),
