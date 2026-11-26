@@ -57,6 +57,13 @@ struct AccountsView: View {
             .onDelete { offsets in
                 store.accounts.remove(atOffsets: offsets)
             }
+            if store.accounts.contains(where: { $0.balance < 0 }) {
+                Section {
+                    NavigationLink { DebtPayoffView() } label: {
+                        Label("Debt payoff planner", systemImage: "chart.line.downtrend.xyaxis")
+                    }
+                }
+            }
             Section {
                 Text("Tap an account to edit it. Swipe left to delete.")
                     .font(.caption).foregroundStyle(.secondary)
