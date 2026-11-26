@@ -98,6 +98,10 @@ struct ReportsView: View {
                     HStack { Text("Savings rate").bold(); Spacer(); Text("\(Int(store.savingsRate * 100))%").bold() }
                     HStack { Text("Top category"); Spacer(); Text(slices.first?.category ?? "—") }
                     HStack { Text("Tax export"); Spacer(); Text("CSV ›").foregroundStyle(Color.ftTealText) }
+                    NavigationLink { FeeFinderView() } label: {
+                        HStack { Text("Fees & interest"); Spacer(); Text("Scan ›").foregroundStyle(Color.ftTealText) }
+                    }
+                    .buttonStyle(.plain)
                 }
                 .font(.subheadline)
                 .reportCard()
