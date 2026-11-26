@@ -97,3 +97,19 @@ struct CashPoint: Identifiable {
     var date: Date
     var balance: Double
 }
+
+/// Snapshot of everything the app persists, written as JSON on-device
+/// (see LedgerFile in SharedStore.swift). NOT encrypted yet — encryption
+/// is the vault pass (AES-256-GCM + PBKDF2, see docs/PRIVACY.md) and
+/// Settings says so plainly. The file never leaves the device.
+/// Field order matters for memberwise inits — do not reorder.
+struct PersistedData: Codable {
+    var accounts: [Account]
+    var transactions: [Transaction]
+    var budgets: [Budget]
+    var watchlists: [WatchlistItem]
+    var goals: [SavingsGoal]
+    var recurring: [RecurringItem]
+    var manualMonthlyIncome: Double?
+    var isDemoMode: Bool
+}

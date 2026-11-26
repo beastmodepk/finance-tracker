@@ -1,22 +1,10 @@
 import Combine
 import Foundation
+import WidgetKit
 
-/// Snapshot of everything the app persists, written as JSON to the app's
-/// Application Support folder. NOT encrypted yet — encryption is the
-/// vault pass (AES-256-GCM + PBKDF2, see docs/PRIVACY.md) and Settings
-/// says so plainly. The file never leaves the device.
-private struct PersistedData: Codable {
-    var accounts: [Account]
-    var transactions: [Transaction]
-    var budgets: [Budget]
-    var watchlists: [WatchlistItem]
-    var goals: [SavingsGoal]
-    var recurring: [RecurringItem]
-    var manualMonthlyIncome: Double?
-    var isDemoMode: Bool
-}
-
-/// App state.
+/// App state. (The persisted snapshot type, PersistedData, lives in
+/// Models.swift so the Siri intent and the widget snapshot writer can
+/// share it.)
 ///
 /// IMPORTANT (honest status): the vault here is still a UI gate only —
 /// any passphrase of 4+ characters unlocks. Data DOES persist on-device
@@ -60,19 +48,7 @@ final class Store: ObservableObject {
             }
     }
 
-    private static var dataFileURL: URL? {
-        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
-            .appendingPathComponent("FinanceTracker", isDirectory: true)
-            .appendingPathComponent("vault-data.json")
-    }
-
-    private func loadFromDisk() -> Bool {
-        guard let url = Self.dataFileURL,
-              let data = try? Data(contentsOf: url),
-              let decoded = try? JSONDecoder().decode(PersistedData.self, from: data) else {
-            return false
-        }
-        isLoadingData = true
+    private func apply(_ decoded: PersistedData) {
         accounts = decoded.accounts
         transactions = decoded.transactions
         budgets = decoded.budgets
@@ -82,22 +58,42 @@ final class Store: ObservableObject {
         manualMonthlyIncome = decoded.manualMonthlyIncome
         isDemoMode = decoded.isDemoMode
         hasSavedData = true
+    }
+
+    private func loadFromDisk() -> Bool {
+        guard let decoded = LedgerFile.load() else { return false }
+        isLoadingData = true
+        apply(decoded)
         isLoadingData = false
         return true
     }
 
+    /// Re-read the ledger from disk. The Siri intent writes to the same
+    /// file from outside the app process; this picks its changes up when
+    /// the app next becomes active.
+    func reloadFromDisk() {
+        guard let decoded = LedgerFile.load() else { return }
+        isLoadingData = true
+        apply(decoded)
+        isLoadingData = false
+    }
+
     private func saveToDisk() {
-        guard !isLoadingData, let url = Self.dataFileURL else { return }
+        guard !isLoadingData else { return }
+        // Memberwise init order (Models.swift): accounts, transactions,
+        // budgets, watchlists, goals, recurring, manualMonthlyIncome,
+        // isDemoMode.
         let snapshot = PersistedData(accounts: accounts, transactions: transactions,
                                      budgets: budgets, watchlists: watchlists,
                                      goals: goals, recurring: recurring,
                                      manualMonthlyIncome: manualMonthlyIncome,
                                      isDemoMode: isDemoMode)
-        guard let data = try? JSONEncoder().encode(snapshot) else { return }
-        try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(),
-                                                 withIntermediateDirectories: true)
-        try? data.write(to: url, options: [.atomic])
+        LedgerFile.save(snapshot)
         hasSavedData = true
+        // Publish the widget snapshot to the App Group and nudge the
+        // widget to refresh.
+        WidgetSnapshot.make(from: snapshot).writeToSharedDefaults()
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     // MARK: - Vault (UI gate only in this build)

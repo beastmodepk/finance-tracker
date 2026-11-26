@@ -2,8 +2,20 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var store: Store
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
+        Group {
+            content
+        }
+        // The Siri intent can write to the shared ledger while the app
+        // is backgrounded; reconcile whenever we come back to the front.
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { store.reloadFromDisk() }
+        }
+    }
+
+    private var content: some View {
         if store.isUnlocked {
             VStack(spacing: 0) {
                 if store.isDemoMode {
