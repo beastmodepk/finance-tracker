@@ -120,6 +120,7 @@ struct AddTransactionView: View {
     @State private var amountText = ""
     @State private var category = "Groceries"
     @State private var isIncome = false
+    @State private var accountID: UUID? = nil
 
     private let categoryOptions = ["Groceries", "Dining", "Transport", "Shopping", "Bills", "Gifts", "Income", "Other"]
 
@@ -132,6 +133,12 @@ struct AddTransactionView: View {
                 Toggle("Income (money in)", isOn: $isIncome)
                 Picker("Category", selection: $category) {
                     ForEach(categoryOptions, id: \.self) { Text($0) }
+                }
+                Picker("Account", selection: $accountID) {
+                    Text("No account").tag(UUID?.none)
+                    ForEach(store.accounts) { account in
+                        Text(account.name).tag(Optional(account.id))
+                    }
                 }
             }
             .navigationTitle("Add transaction")
@@ -146,7 +153,8 @@ struct AddTransactionView: View {
                         store.transactions.insert(
                             Transaction(date: Date(), description: description,
                                         category: isIncome ? "Income" : category,
-                                        amount: isIncome ? abs(value) : -abs(value)),
+                                        amount: isIncome ? abs(value) : -abs(value),
+                                        accountID: accountID),
                             at: 0)
                         dismiss()
                     }

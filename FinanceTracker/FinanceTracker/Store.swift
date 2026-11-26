@@ -47,6 +47,19 @@ final class Store: ObservableObject {
         isUnlocked = false
     }
 
+    /// Clear everything and stay unlocked, so the user can enter only
+    /// their own real data. (Persistence of the empty state is wired in
+    /// Store's save-on-change, so this sticks across launches.)
+    func startFresh() {
+        accounts = []
+        transactions = []
+        budgets = []
+        watchlists = []
+        goals = []
+        recurring = []
+        isDemoMode = false
+    }
+
     func wipeVault() {
         accounts = []
         transactions = []
