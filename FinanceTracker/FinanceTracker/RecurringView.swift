@@ -8,6 +8,23 @@ struct RecurringView: View {
     private var subscriptions: [RecurringItem] { store.recurring.filter { $0.isSubscription } }
     private var subscriptionMonthly: Double { abs(subscriptions.reduce(0) { $0 + $1.amount }) }
 
+    /// Subscriptions worth a second look: the price rose, or they look unused.
+    private var flaggedSubscriptions: [RecurringItem] {
+        subscriptions.filter { $0.priceRose || $0.looksUnused }
+    }
+    /// Monthly saving if a flagged subscription were cancelled: the full
+    /// amount for an unused one, just the increase for a price rise.
+    private func potentialSaving(_ item: RecurringItem) -> Double {
+        if item.looksUnused { return abs(item.amount) }
+        if item.priceRose, let previous = item.previousAmount {
+            return abs(item.amount) - abs(previous)
+        }
+        return 0
+    }
+    private var potentialSavingMonthly: Double {
+        flaggedSubscriptions.reduce(0) { $0 + potentialSaving($1) }
+    }
+
     var body: some View {
         List {
             Section {
@@ -19,6 +36,45 @@ struct RecurringView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .listRowBackground(Color.ftTealDeep)
+            }
+            Section {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("SUBSCRIPTION BURN").font(.caption).bold().foregroundStyle(.secondary)
+                    HStack(alignment: .firstTextBaseline, spacing: 4) {
+                        Text(money(subscriptionMonthly)).font(.title).bold()
+                        Text("/mo").font(.subheadline).foregroundStyle(.secondary)
+                    }
+                    Text("\(money(subscriptionMonthly * 12))/yr across \(subscriptions.count) subscriptions")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            if !flaggedSubscriptions.isEmpty {
+                Section {
+                    ForEach(flaggedSubscriptions) { item in
+                        VStack(alignment: .leading, spacing: 3) {
+                            HStack {
+                                Text(item.name)
+                                Spacer()
+                                Text("save \(money(potentialSaving(item)))/mo")
+                                    .bold().foregroundStyle(Color.ftTealText)
+                            }
+                            .font(.subheadline)
+                            if item.priceRose, let previous = item.previousAmount {
+                                Text("\(money(abs(previous))) → \(money(abs(item.amount))) · +\(money(abs(item.amount) - abs(previous)))/mo")
+                                    .font(.caption).foregroundStyle(.red)
+                            }
+                            if item.looksUnused {
+                                Text("Looks unused — cancelling saves the full \(money(abs(item.amount)))/mo")
+                                    .font(.caption).foregroundStyle(Color.ftAmberText)
+                            }
+                        }
+                    }
+                } header: {
+                    Text("Potential savings")
+                } footer: {
+                    Text("Cancelling the flagged subscriptions would save \(money(potentialSavingMonthly))/mo · \(money(potentialSavingMonthly * 12))/yr. Cancelling happens in each provider's own app — we never act on your accounts.")
+                }
             }
             Section("Upcoming") {
                 if store.upcomingRecurring.isEmpty {
