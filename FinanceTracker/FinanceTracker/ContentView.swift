@@ -26,11 +26,9 @@ struct ContentView: View {
                 .tabItem { Label("Dashboard", systemImage: "chart.pie") }
             TransactionsView()
                 .tabItem { Label("Transactions", systemImage: "list.bullet.rectangle") }
-            PlaceholderView(title: "Spending Plan", systemImage: "wallet.bifold",
-                            note: "Budgets by category live here.")
+            SpendingPlanView()
                 .tabItem { Label("Plan", systemImage: "wallet.bifold") }
-            PlaceholderView(title: "Accounts", systemImage: "building.columns",
-                            note: "Accounts and card statement details live here.")
+            AccountsView()
                 .tabItem { Label("Accounts", systemImage: "building.columns") }
             PlaceholderView(title: "More", systemImage: "ellipsis.circle",
                             note: "Budgets, goals, recurring, reports, import and settings live here.")
